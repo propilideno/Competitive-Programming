@@ -1,0 +1,7 @@
+- D:    Aprendi o uso de uma nova estrutura de dado chamada Map que é muito efetiva para o acesso.
+        Aprendi a pegar inputs diretamento no laço. cin >> t && t != 0
+
+- E:    Aprendi um uso efetivo de iteração: while(t --){} - Itera t vezes.
+        Aprendi um uso interessante de seleção de bits mais significativos, conversão pra string, e reconversão para int. Usando sstream e stoi.
+        Aprendi um uso interessante da estrutura de dados set ao invés de array ou map. Set não aceita valores duplicados.
+        Aprendi um uso interessante para escape do while com o set quando encontrar valores duplicados: set.count()
