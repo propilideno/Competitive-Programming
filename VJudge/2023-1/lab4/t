@@ -1,0 +1,5 @@
+run-%:
+g++ -g $*.cpp
+./a.out < input/$*.txt
+debug-%:
+g++ -g $*.cppgdb -ex ¨run < input/$*.txt"./a.out
