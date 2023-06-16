@@ -1,4 +1,4 @@
-// ############################ Template available in: https://propi.dev/cp  ############################ //
+/* ############################ Template available in: https://propi.dev/cp  ############################ */
 #pragma GCC optimize("-O3","-funroll-all-loops","-ffast-math")
 #include <bits/stdc++.h>
 //Debug methods
@@ -6,8 +6,6 @@
 #define __(x) {cout << #x << " = " << x << " | ";} //Print without endl
 #define _vec(x) {cout << #x << " = "; for(int i : x){cout << i << " ";} cout << endl;} //Print entire vector
 #define _pair(x) {cout << #x << " = | " << "1st: " << x.first << " | " << "2nd: " << x.second << endl;} //Print pair
-#define dbgs(x) cerr << (#x) << " --> " << (x) << ' '
-#define dbg(x) cerr << (#x) << " --> " << (x) << endl
 //Constants
 const double PI = acos(-1); //PI
 const double E = 1e-8; //Small Number
@@ -42,7 +40,7 @@ typedef std::map<int, int> mii;
 typedef std::map<ll, ll> mll;
 typedef std::pair<int, int> pii;
 typedef std::pair<std::string, int> psi;
-// ###################################################################################################### //
+/* ###################################################################################################### */
 
 #define args p,q,r,s,t,u
 #define fargs int p, int q, int r, int s, int t, int u
@@ -60,34 +58,35 @@ void plotInterval(double min, double max, double stepValue, fargs){
 }
 
 int main(){
-	// SpeedUP;
+	SpeedUP;
 	string line;
+	cout << fixed << setprecision(4);
 	while(getline(cin,line)){
 		istringstream iss(line);
 		int args; iss >> p >> q >> r >> s >> t >> u;
-		double lowerX = 0;
-		double upperX = 1;
-		double f_lowerX = equation(lowerX,args);
-		double f_upperX = equation(upperX,args);
-		if(f_lowerX * f_upperX > 0){
+		double a,b,c,fa,fb,fc;
+		a = 0, b = 1;
+		fa = equation(a,args), fb = equation(b,args);
+		if(fa * fb > 0){
 			cout << "No solution" << endl;
 		} else{
-			f(i,20){
-				f_lowerX = equation(lowerX,args);
-				f_upperX = equation(upperX,args);
-				double middle = (lowerX + upperX)/2.0;
-				if(abs(f_lowerX) < abs(f_upperX)){ // 0 is near lowerX
-					upperX = middle;
-				}else{
-					lowerX = middle;
+			f(i,100){
+				fa = equation(a,args);
+				fb = equation(b,args);
+				c = (a + b)/2;
+				fc = equation(c,args);
+				if(fa * fc * fb == 0){ //Root is one of this
+					cout << (!fa ? a : (!fc ? c : b)) << endl; 
+					break;
+				} else if(fa * fc < 0){ //Root is between this interval
+					b = c;
+				} else{ // Root is between this interval
+					a = c;
 				}
 			}
-			if(abs(f_lowerX) < abs(f_upperX)){
-				cout << lowerX << endl;
-			}else{
-				cout << upperX << endl;
+			if(fa * fc *fb != 0){
+				cout << c << endl;
 			}
 		}
-		cout << endl;
 	}
 }
