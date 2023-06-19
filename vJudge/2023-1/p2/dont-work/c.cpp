@@ -24,7 +24,6 @@ const int INF_P = (INF_N+1)*(-1); //Max_INT
 #define RF(i,a,b) for(int i=a;i>=b;i--)
 #define FOR(it,c) for ( __typeof((c).begin()) it=(c).begin(); it!=(c).end(); it++ )
 #define RFOR(it,c) for ( __typeof((c).rbegin()) it=(c).rbegin(); it!=(c).rend(); it++ )
-#define REP(it,c) for ( __typeof((c).begin()) it=(c).begin(); it!=(c).end();)
 #define all(c) c.begin(), c.end()
 #define rall(c) c.rbegin(), c.rend()
 //IO Optimization
@@ -44,33 +43,48 @@ typedef std::pair<int, int> pii;
 typedef std::pair<std::string, int> psi;
 /* ################################################################################################## */
 
+int traverse(vi stones, int d, int maxHop){
+	int currentHop = 0;
+	if(sz(stones) == 0){
+		maxHop = d;
+	} else{
+		f(i,sz(stones)-1){
+			currentHop = stones[i+1] - stones[i];
+			if(currentHop > maxHop){ maxHop = currentHop; }
+		}
+		currentHop = d - stones[sz(stones)-1];
+		if(currentHop > maxHop){ maxHop = currentHop; }
+	}
+	return maxHop;
+}
+
 int main(){
 	SpeedUP; //Uncomment for a faster runtime
 	string line;
 	int t; cin >> t;
 	int n, d;
+	char stone;
 	f(j,t){
-		list<pair<int,bool>> stones;
 		cin >> n >> d;
-		stones.push_back(mp(0,0)); //First stone
+		vi lrPath, rlPath, s_stones;
 		f(i,n){
 			char temp, junk; int m;
-			cin >> temp >> junk >> m; // Read input and discard the hyphen
-			stones.pb(mp(m, temp == 'S')); //If S stone, return true
+			cin >> temp >> junk >> m; // Lê a entrada e descarta o hífen
+			if(temp == 'B'){
+				lrPath.pb(m); rlPath.pb(m); // Pedras B vão para os 2 caminhos
+			}else{
+				s_stones.pb(m);
+			}
 		}
-		stones.pb(mp(d,0)); //Last stone
-		int maxHop = 0;
-		REP(it,stones){ //Left to right
-			auto current = it;
-			it++;
-			if(current->ss && it->ss) it++; //If both stones are S, skip the next one
-			maxHop = max(maxHop, it->ff - current->ff); //Calculates the max hop
-			if(current->ss) stones.erase(current); //If current stone is S, remove it
-		} REP(it,stones){ // Right to left
-			auto current = it;
-			it++;
-			maxHop = max(maxHop, it->ff - current->ff); //Calculates the max hop
+		sort(all(lrPath));sort(rall(rlPath)); //Ordena os arrays
+		f(i,sz(s_stones)){
+			//Par -> Caminho LR | Impar -> Caminho RL
+			(i%2 == 0) ? lrPath.pb(s_stones[i]) : rlPath.pb(s_stones[i]);
 		}
+		// Left to right
+		int maxHop = traverse(lrPath, d, 0);
+		// Right to left
+		maxHop = traverse(rlPath, d, maxHop);
 		cout << "Case " << j+1 << ": " << maxHop << endl;
 	}
 }
