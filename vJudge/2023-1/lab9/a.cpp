@@ -48,74 +48,26 @@ typedef std::pair<std::string, int> psi;
 //IO Optimization
 #define __SpeedUP__ ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
 // Custom Data Structs
-int VI_to_INT(vi digit);
-vi INT_to_VI(int v);
 struct Graph { // Call like: Graph G(n); G.addEdge(u,v);
     int n; vector<unordered_set<int>> adj;
 	Graph(int size) : n(size) { adj.resize(size); }
-    void addEdge(int u, int v) { adj[u].insert(v); }
-	void removeEdge(int u, int v) { adj[u].erase(v); }
-	void addNeighbors(int v){
-		vi digits = INT_to_VI(v);
-		f(i,4){
-			vi left = digits, right = digits;
-			left[i] --; right[i] ++;
-			if(digits[i] == 0) left[i] = 9;
-			if(digits[i] == 9) right[i] = 0;
-			addEdge(v,VI_to_INT(left));
-			addEdge(v,VI_to_INT(right));
-		} 
-	}
+    void addEdge(int u, int v) { adj[u].insert(v); adj[v].insert(u); }
+	void removeEdge(int u, int v) { adj[u].erase(v); adj[v].erase(u); }
 };
 // HEADERS
 template <class T> using pqg = priority_queue<T, vector<T>, greater<T>>; //Min Heap
 struct Graph; //Graph with adjacency list					 // vector <bool> visited(n,false);
 template <template<typename...> class Container, typename T> // DFS: dbfs<stack,int>(G,v,visited)
-int dbfs(Graph& G, int v, int out,vector<int>& visited);	 // BFS: dbfs<queue,int>(G,v,visited)
+void dbfs(Graph& G, int v, vector<bool>& visited);			 // BFS: dbfs<queue,int>(G,v,visited)
 
 /* ################################################################################################## */
 
-vi INT_to_VI(int v){
-	string temp = to_string(v);
-	vi digit(sz(temp));
-	f(i,sz(temp)){
-		digit[i] = temp[i] - '0';
-	} return digit;
-}
-
-int VI_to_INT(vi digit){
-	stringstream ss;
-	std::transform(all(digit), std::ostream_iterator<int>(ss),
-        [](int digit) { return digit; }
-    );
-	int result; ss >> result;
-	// cout << result << endl;
-	return result;
-}
-
-vi CIN_to_VI(){
-	vi digit(4);
-	f(i,4){ cin >> digit[i]; }
-	return digit;
-}
-
-int readNumber(){
-	return VI_to_INT(CIN_to_VI());
-}
 
 int main(){
 	// __SpeedUP__ //Uncomment for a faster runtime
-	int t; cin >> t;
-	int n = 10000;
-	f(k,t){
-		int v = readNumber(); 
-		int out = readNumber();
-		Graph G(n); vector<int> visited(n,INF_P);
-		int e; cin >> e; while(e--){
-			int excluded = readNumber();
-			visited[excluded] = 0;
-		}
-		cout << dbfs<queue,int>(G,v,out,visited) << endl;
+	string line;
+	while(getline(cin,line)){
+		cout << line << endl;
 	}
 
 	// __time__ //Uncomment for show runtime
@@ -125,24 +77,22 @@ int main(){
 /* ################################################################################################## */
 
 template <template<typename...> class Container, typename T>
-int dbfs(Graph& G, int v, int out, vector<int>& visited) {
-    Container<T> arr; arr.push(v); visited[v] = 0;
+void dbfs(Graph& G, int v, vector<bool>& visited) {
+    Container<T> arr; arr.push(v); visited[v] = true;
 
     while (!arr.empty()) {
 		if constexpr(is_same<Container<T>, stack<typename Container<T>::value_type>>::value) {
 			v = arr.top(); // Use top if using std::stack
 		} else { v = arr.front(); } arr.pop(); // front if std::queue
-
-		G.addNeighbors(v);
-		if(v == out) return visited[v];
+		
+        cout << v << " "; // Do something with v
 
         for (int w : G.adj[v]) { // For each unvisited neighbor of v
-            if (visited[w] == INF_P) {
-                arr.push(w); visited[w] = visited[v] +1;
+            if (!visited[w]) {
+                arr.push(w); visited[w] = true;
             }
         }
-    }
-	return -1;
+    } cout << endl;
 }
 
 /* ########################## Template available in: https://propi.dev/cp  ########################## */

@@ -49,74 +49,50 @@ typedef std::pair<std::string, int> psi;
 #define __SpeedUP__ ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
 // Custom Data Structs
 struct Graph { // Call like: Graph G(n); G.addEdge(u,v);
-    int n; vector<unordered_set<int>> adj; Graph(int size) : n(size) { adj.resize(size); }
-    void addEdge(int u, int v) { adj[u].insert(v); }
-	void removeEdge(int u, int v) { adj[u].erase(v); }
-	void removeNeighbors(int v){ adj[v].clear(); }
+    int n; vector<unordered_set<int>> adj;
+	Graph(int size) : n(size) { adj.resize(size); }
+    void addEdge(int u, int v) { adj[u].insert(v); adj[v].insert(u); }
+	void removeEdge(int u, int v) { adj[u].erase(v); adj[v].erase(u); }
 };
 // HEADERS
 template <class T> using pqg = priority_queue<T, vector<T>, greater<T>>; //Min Heap
 struct Graph; //Graph with adjacency list					 // vector <bool> visited(n,false);
 template <template<typename...> class Container, typename T> // DFS: dbfs<stack,int>(G,v,visited)
-bool dbfs(Graph& G, int v, int out, vector<bool>& visited);			 // BFS: dbfs<queue,int>(G,v,visited)
+void dbfs(Graph& G, int v, vector<bool>& visited);			 // BFS: dbfs<queue,int>(G,v,visited)
 
 /* ################################################################################################## */
 
 
 int main(){
-	//SpeedUP; //Uncomment for a faster runtime
+	// __SpeedUP__ //Uncomment for a faster runtime
 	string line;
-	int t, n; cin >> t;
-	f(k,t){
-		cout << "Case " << k << ":" << endl;
-		cin >> n; Graph G(n);
-		f(i,n){ //Construct Graph
-			f(j,n){
-				int hasEdge; cin >> hasEdge;
-				if(hasEdge == 1) G.addEdge(i,j);
-			}
-		}
-		f(i,n){ // Verify Domination for every Edge
-			cout << "+" << string(2*n-1, '-') << "+" << endl;
-			cout << "|";
-			f(j,n){
-				Graph A(n); A.adj = G.adj;
-				vector<bool> visited(n,false);
-				A.removeNeighbors(i);
-				bool dominate = dbfs<stack,int>(A,0,j,visited);
-				cout << (dominate ? "Y|" : "N|");
-			} cout << endl;
-		}
-		cout << "+" << string(2*n-1, '-') << "+" << endl;
+	while(getline(cin,line)){
+		cout << line << endl;
 	}
-	
-	__time__
+
+	// __time__ //Uncomment for show runtime
 }
 
 
 /* ################################################################################################## */
 
 template <template<typename...> class Container, typename T>
-bool dbfs(Graph& G, int v, int out, vector<bool>& visited) {
+void dbfs(Graph& G, int v, vector<bool>& visited) {
     Container<T> arr; arr.push(v); visited[v] = true;
 
     while (!arr.empty()) {
 		if constexpr(is_same<Container<T>, stack<typename Container<T>::value_type>>::value) {
 			v = arr.top(); // Use top if using std::stack
 		} else { v = arr.front(); } arr.pop(); // front if std::queue
+		
+        cout << v << " "; // Do something with v
 
-		if(v == out){
-			return 1; //Domination
-		}
-
-        for (int w : G.adj[v]) {
+        for (int w : G.adj[v]) { // For each unvisited neighbor of v
             if (!visited[w]) {
-                arr.push(w);
-                visited[w] = true;
+                arr.push(w); visited[w] = true;
             }
         }
-    }
-	return 0;
+    } cout << endl;
 }
 
 /* ########################## Template available in: https://propi.dev/cp  ########################## */
