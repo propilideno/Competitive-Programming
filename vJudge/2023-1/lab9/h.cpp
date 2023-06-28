@@ -53,7 +53,7 @@ vi INT_to_VI(int v);
 struct Graph { // Call like: Graph G(n); G.addEdge(u,v);
     int n; vector<unordered_set<int>> adj;
 	Graph(int size) : n(size) { adj.resize(size); }
-    void addEdge(int u, int v) { adj[u].insert(v); }
+    void addEdge(int u, int v) { adj[u].insert(v); adj[u].insert(v); }
 	void removeEdge(int u, int v) { adj[u].erase(v); }
 	void addNeighbors(int v){
 		vi digits = INT_to_VI(v);
@@ -107,10 +107,12 @@ int main(){
 	// __SpeedUP__ //Uncomment for a faster runtime
 	int t; cin >> t;
 	int n = 10000;
+	Graph G(n); vector<int> visited(n,INF_P);
 	f(k,t){
+		G.adj.clear();
+		visited.assign(n,INF_P);
 		int v = readNumber(); 
 		int out = readNumber();
-		Graph G(n); vector<int> visited(n,INF_P);
 		int e; cin >> e; while(e--){
 			int excluded = readNumber();
 			visited[excluded] = 0;
@@ -118,7 +120,7 @@ int main(){
 		cout << dbfs<queue,int>(G,v,out,visited) << endl;
 	}
 
-	// __time__ //Uncomment for show runtime
+	__time__ //Uncomment for show runtime
 }
 
 
@@ -127,22 +129,20 @@ int main(){
 template <template<typename...> class Container, typename T>
 int dbfs(Graph& G, int v, int out, vector<int>& visited) {
     Container<T> arr; arr.push(v); visited[v] = 0;
-
-    while (!arr.empty()) {
+	while (!arr.empty()) {
 		if constexpr(is_same<Container<T>, stack<typename Container<T>::value_type>>::value) {
 			v = arr.top(); // Use top if using std::stack
 		} else { v = arr.front(); } arr.pop(); // front if std::queue
 
-		G.addNeighbors(v);
 		if(v == out) return visited[v];
+		G.addNeighbors(v);
 
         for (int w : G.adj[v]) { // For each unvisited neighbor of v
             if (visited[w] == INF_P) {
                 arr.push(w); visited[w] = visited[v] +1;
             }
         }
-    }
-	return -1;
+    } return -1;
 }
 
 /* ########################## Template available in: https://propi.dev/cp  ########################## */
