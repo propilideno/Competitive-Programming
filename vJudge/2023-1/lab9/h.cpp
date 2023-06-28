@@ -1,5 +1,5 @@
 /* ########################## Template available in: https://propi.dev/cp  ########################## */
-//#pragma GCC optimize("-O3","-funroll-all-loops","-ffast-math") //Uncomment for a faster runtime
+#pragma GCC optimize("-O3","-funroll-all-loops","-ffast-math") //Uncomment for a faster runtime
 #include <bits/stdc++.h>
 //Debug methods
 #define _(x) {cout << #x << " = " << x << endl;} //Print with endl
@@ -8,6 +8,7 @@
 #define _pair(x) {cout << #x << " = | " << "1st: " << x.first << " | " << "2nd: " << x.second << endl;} //Print pair
 #define __time__ { auto duration = chrono::duration<double>( /* Show runtime */ \
 std::chrono::high_resolution_clock::now() - beg); cout<<"Time: "<<duration.count()<<endl;}
+#define __log__ { std::FILE* file = std::freopen("LOG.txt", "w", stdout); }
 //Constants
 const auto beg = std::chrono::high_resolution_clock::now(); //Begining of the program
 const double PI = acos(-1); //PI
@@ -55,16 +56,17 @@ struct Graph { // Call like: Graph G(n); G.addEdge(u,v);
 	Graph(int size) : n(size) { adj.resize(size); }
     void addEdge(int u, int v) { adj[u].insert(v); adj[u].insert(v); }
 	void removeEdge(int u, int v) { adj[u].erase(v); }
-	void addNeighbors(int v){
+	void addNeighbors(int v, vector<int> visited){
 		vi digits = INT_to_VI(v);
 		f(i,4){
 			vi left = digits, right = digits;
 			left[i] --; right[i] ++;
 			if(digits[i] == 0) left[i] = 9;
-			if(digits[i] == 9) right[i] = 0;
-			addEdge(v,VI_to_INT(left));
-			addEdge(v,VI_to_INT(right));
-		} 
+			else if(digits[i] == 9) right[i] = 0;
+			int leftVal = VI_to_INT(left), rightVal = VI_to_INT(right);
+			if(visited[leftVal] != -1) addEdge(v,leftVal);
+			if(visited[rightVal] != -1) addEdge(v,rightVal);
+		}
 	}
 };
 // HEADERS
@@ -75,22 +77,30 @@ int dbfs(Graph& G, int v, int out,vector<int>& visited);	 // BFS: dbfs<queue,int
 
 /* ################################################################################################## */
 
-vi INT_to_VI(int v){
+vi INT_to_VI(int v) {
 	string temp = to_string(v);
-	vi digit(sz(temp));
-	f(i,sz(temp)){
-		digit[i] = temp[i] - '0';
-	} return digit;
+	vi digits(4);
+	if(sz(temp) < 4){
+		int n = sz(temp);
+		f(i,n){
+			// cout << "Did it" << endl;
+			digits[i] = 0;
+		}for(int i=4-n, j=0; i<4; i++, j++){
+			digits[i] = temp[j] - '0';
+		}
+	}
+	else{
+		f(i,4) digits[i] = temp[i] - '0';
+	}
+	return digits;
 }
 
+
 int VI_to_INT(vi digit){
-	stringstream ss;
-	std::transform(all(digit), std::ostream_iterator<int>(ss),
-        [](int digit) { return digit; }
-    );
-	int result; ss >> result;
-	// cout << result << endl;
-	return result;
+	// _vec(digit)
+	int value = digit[0] *1000 + digit[1] * 100 + digit[2]*10 + digit[3];
+	// _(value)
+	return value;
 }
 
 vi CIN_to_VI(){
@@ -100,13 +110,17 @@ vi CIN_to_VI(){
 }
 
 int readNumber(){
-	return VI_to_INT(CIN_to_VI());
+	vi digit = CIN_to_VI();
+	// _vec(digit)
+	return VI_to_INT(digit);
 }
 
 int main(){
-	// __SpeedUP__ //Uncomment for a faster runtime
+	__SpeedUP__ //Uncomment for a faster runtime
+	// __log__ //Uncomment for get cout into LOG.txt
 	int t; cin >> t;
 	int n = 10000;
+	string trash;
 	Graph G(n); vector<int> visited(n,INF_P);
 	f(k,t){
 		G.adj.clear();
@@ -115,12 +129,13 @@ int main(){
 		int out = readNumber();
 		int e; cin >> e; while(e--){
 			int excluded = readNumber();
-			visited[excluded] = 0;
+			visited[excluded] = -1; //Forbidden
 		}
+		getline(cin,trash); //Trash
 		cout << dbfs<queue,int>(G,v,out,visited) << endl;
 	}
 
-	__time__ //Uncomment for show runtime
+	// __time__ //Uncomment for show runtime
 }
 
 
@@ -135,7 +150,7 @@ int dbfs(Graph& G, int v, int out, vector<int>& visited) {
 		} else { v = arr.front(); } arr.pop(); // front if std::queue
 
 		if(v == out) return visited[v];
-		G.addNeighbors(v);
+		G.addNeighbors(v, visited);
 
         for (int w : G.adj[v]) { // For each unvisited neighbor of v
             if (visited[w] == INF_P) {
