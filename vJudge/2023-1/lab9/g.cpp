@@ -8,6 +8,7 @@
 #define _pair(x) {cout << #x << " = | " << "1st: " << x.first << " | " << "2nd: " << x.second << endl;} //Print pair
 #define __time__ { auto duration = chrono::duration<double>( /* Show runtime */ \
 std::chrono::high_resolution_clock::now() - beg); cout<<"Time: "<<duration.count()<<endl;}
+#define __log__ { std::FILE* file = std::freopen("LOG.txt", "w", stdout); }
 //Constants
 const auto beg = std::chrono::high_resolution_clock::now(); //Begining of the program
 const double PI = acos(-1); //PI
@@ -65,10 +66,10 @@ bool dbfs(Graph& G, int v, int out, vector<bool>& visited);			 // BFS: dbfs<queu
 
 int main(){
 	//SpeedUP; //Uncomment for a faster runtime
-	string line;
+	__log__;
 	int t, n; cin >> t;
 	f(k,t){
-		cout << "Case " << k << ":" << endl;
+		cout << "Case " << k+1 << ":" << endl;
 		cin >> n; Graph G(n);
 		f(i,n){ //Construct Graph
 			f(j,n){
@@ -80,10 +81,13 @@ int main(){
 			cout << "+" << string(2*n-1, '-') << "+" << endl;
 			cout << "|";
 			f(j,n){
-				Graph A(n); A.adj = G.adj;
-				vector<bool> visited(n,false);
-				A.removeNeighbors(i);
-				bool dominate = dbfs<stack,int>(A,0,j,visited);
+				Graph A(G);
+				vector<bool> visited(n,false); bool dominate;
+				if(i == j) dominate = !(dbfs<stack,int>(A,0,j,visited));
+				else{
+					A.removeNeighbors(i);
+					dominate = dbfs<stack,int>(A,0,j,visited);
+				}
 				cout << (dominate ? "Y|" : "N|");
 			} cout << endl;
 		}
@@ -105,18 +109,19 @@ bool dbfs(Graph& G, int v, int out, vector<bool>& visited) {
 			v = arr.top(); // Use top if using std::stack
 		} else { v = arr.front(); } arr.pop(); // front if std::queue
 
+		_(v)
+
 		if(v == out){
-			return 1; //Domination
+			return 0; //Don't dominate, because we reach out
 		}
 
         for (int w : G.adj[v]) {
             if (!visited[w]) {
-                arr.push(w);
-                visited[w] = true;
+                arr.push(w); visited[w] = true;
             }
         }
     }
-	return 0;
+	return 1; // Dominate
 }
 
 /* ########################## Template available in: https://propi.dev/cp  ########################## */
