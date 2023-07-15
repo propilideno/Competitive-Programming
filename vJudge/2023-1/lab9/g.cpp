@@ -1,5 +1,5 @@
 /* ########################## Template available in: https://propi.dev/cp  ########################## */
-//#pragma GCC optimize("-O3","-funroll-all-loops","-ffast-math") //Uncomment for a faster runtime
+#pragma GCC optimize("-O3","-funroll-all-loops","-ffast-math") //Uncomment for a faster runtime
 #include <bits/stdc++.h>
 //Debug methods
 #define _(x) {cout << #x << " = " << x << endl;} //Print with endl
@@ -50,23 +50,20 @@ typedef std::pair<std::string, int> psi;
 #define __SpeedUP__ ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
 // Custom Data Structs
 struct Graph { // Call like: Graph G(n); G.addEdge(u,v);
-    int n; vector<unordered_set<int>> adj; Graph(int size) : n(size) { adj.resize(size); }
+    int n; vector<unordered_set<int>> adj;
+	Graph(int size) : n(size) { adj.resize(size); }
     void addEdge(int u, int v) { adj[u].insert(v); }
 	void removeEdge(int u, int v) { adj[u].erase(v); }
 	void removeNeighbors(int v){ adj[v].clear(); }
 };
 // HEADERS
-template <class T> using pqg = priority_queue<T, vector<T>, greater<T>>; //Min Heap
-struct Graph; //Graph with adjacency list					 // vector <bool> visited(n,false);
-template <template<typename...> class Container, typename T> // DFS: dbfs<stack,int>(G,v,visited)
-bool dbfs(Graph& G, int v, int out, vector<bool>& visited);			 // BFS: dbfs<queue,int>(G,v,visited)
+template <template<typename...> class Container, typename T>		  // DFS: dbfs<stack,int>(G,v,visited)
+void dbfs(Graph& G, int dominator, vector<pair<bool,bool>>& visited); // BFS: dbfs<queue,int>(G,v,visited)
 
 /* ################################################################################################## */
 
 
 int main(){
-	//SpeedUP; //Uncomment for a faster runtime
-	__log__;
 	int t, n; cin >> t;
 	f(k,t){
 		cout << "Case " << k+1 << ":" << endl;
@@ -77,51 +74,60 @@ int main(){
 				if(hasEdge == 1) G.addEdge(i,j);
 			}
 		}
-		f(i,n){ // Verify Domination for every Edge
-			cout << "+" << string(2*n-1, '-') << "+" << endl;
-			cout << "|";
-			f(j,n){
-				Graph A(G);
-				vector<bool> visited(n,false); bool dominate;
-				if(i == j) dominate = !(dbfs<stack,int>(A,0,j,visited));
-				else{
-					A.removeNeighbors(i);
-					dominate = dbfs<stack,int>(A,0,j,visited);
-				}
-				cout << (dominate ? "Y|" : "N|");
-			} cout << endl;
+		f(i,n){ // Verify Domination for every vertex
+			cout << "+" << string(2*n-1, '-') << "+" << endl << "|";
+			vector<pair<bool,bool>> visited(n,mp(false,false));
+			dbfs<stack,int>(G,i,visited);
 		}
 		cout << "+" << string(2*n-1, '-') << "+" << endl;
 	}
-	
-	__time__
 }
 
 
 /* ################################################################################################## */
 
 template <template<typename...> class Container, typename T>
-bool dbfs(Graph& G, int v, int out, vector<bool>& visited) {
-    Container<T> arr; arr.push(v); visited[v] = true;
+void dbfs(Graph& G, int dominator, vector<pair<bool,bool>>& visited) {
+	int v = 0; // Start from 0
+    Container<T> arr; arr.push(v); visited[v].first = true;
+	
+    while (!arr.empty()) {
+		if constexpr(is_same<Container<T>, stack<typename Container<T>::value_type>>::value) {
+			v = arr.top(); // Use top if using std::stack
+		} else { v = arr.front(); } arr.pop(); // front if std::queue
+
+        for (int w : G.adj[v]) {
+            if (!visited[w].first) {
+                arr.push(w); visited[w].first = true;
+            }
+        }
+    }
+
+	Graph A = G; // Copy Graph
+	A.removeNeighbors(dominator); // Remove all edges from dominator
+	arr.push(v=0); visited[v].second = true; // Start from 0
 
     while (!arr.empty()) {
 		if constexpr(is_same<Container<T>, stack<typename Container<T>::value_type>>::value) {
 			v = arr.top(); // Use top if using std::stack
 		} else { v = arr.front(); } arr.pop(); // front if std::queue
 
-		_(v)
-
-		if(v == out){
-			return 0; //Don't dominate, because we reach out
-		}
-
-        for (int w : G.adj[v]) {
-            if (!visited[w]) {
-                arr.push(w); visited[w] = true;
+        for (int w : A.adj[v]) {
+            if (!visited[w].second) {
+                arr.push(w); visited[w].second = true;
             }
         }
     }
-	return 1; // Dominate
+
+	f(i, sz(visited)){
+		if(dominator == i){ //Matrix: i == j
+			cout << (visited[i].first ? "Y|" : "N|");
+		} else{ //Matrix: i != j
+			bool dominated = visited[i].first && !visited[i].second;
+			cout << (dominated ? "Y|" : "N|");
+		}
+	} cout << endl;
+	
 }
 
 /* ########################## Template available in: https://propi.dev/cp  ########################## */
